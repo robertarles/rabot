@@ -1,0 +1,11 @@
+{
+    "wundergroundkey": "yourwundergroundkey",
+    "slackposturl": "yourslackpostingurl",
+    "notify": {
+        "temp": {"min": 95, "max": 90},
+        "alerts": "True",
+        "daily": ["07:00", "12:00"]
+    },
+    "notificationconditions": ["rain", "fog", "temp_max", "temp_min"],
+    "alertconditions": ["rain"]
+}
