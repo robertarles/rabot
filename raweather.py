@@ -58,7 +58,7 @@ class RaWeather():
                 json_data.close()
                 self.log.write('Starting Activity: {}'.format(self.activity))
         except FileNotFoundError:
-            errormessage = "[ERROR] Activity file not found [{}]".format(self.config['activityfile'])
+            errormessage = "[ERROR] Activity file not found"
             self.setnotification(errormessage)
             self.sendnotifications()
             self.log.write(errormessage)
