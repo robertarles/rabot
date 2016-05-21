@@ -3,16 +3,13 @@ import requests
 import json
 from datetime import datetime as dt
 from ratwitter import RaTwitter
-from ralogging import RaLogging
+from flask import Flask
 
 
 class RaWeather():
     """
     Check tomorrows weather for conditions I want to be alerted on
     """
-
-    log = RaLogging()
-
     # TODO: add use of alerting from config (ignoring schedule, e.g. 'oh shit, it's about to rain')
     def __init__(self, day=1):
         self.config = None
@@ -34,21 +31,21 @@ class RaWeather():
             with open('./raweather.conf', 'r') as json_data:
                 self.config = json.load(json_data)
                 json_data.close()
-                # self.log.write('Starting Config: {}'.format(self.config))
+                # print('Starting Config: {}'.format(self.config))
         except FileNotFoundError:
             errormessage = "[ERROR] Config file not found [{}]".format(self.configfile)
             self.setnotification(errormessage)
             self.sendnotifications()
-            self.log.write(errormessage)
-            self.log.write(type(self.config))
+            print(errormessage)
+            print(type(self.config))
             exit()
         except json.decoder.JSONDecodeError as jde:
             errormessage = "[ERROR] Error decoding JSON config file"
             self.setnotification(errormessage)
             self.sendnotifications()
-            self.log.write(errormessage)
-            self.log.write(type(self.config))
-            self.log.write(jde)
+            print(errormessage)
+            print(type(self.config))
+            print(jde)
             exit()
 
     def loadactivity(self):
@@ -56,34 +53,35 @@ class RaWeather():
             with open('raweather.activity', 'r') as json_data:
                 self.activity = json.load(json_data)
                 json_data.close()
-                self.log.write('Starting Activity: {}'.format(self.activity))
+                print('Starting Activity: {}'.format(self.activity))
         except FileNotFoundError:
             errormessage = "[ERROR] Activity file not found"
             self.setnotification(errormessage)
             self.sendnotifications()
-            self.log.write(errormessage)
-            self.log.write(type(self.activity))
+            print(errormessage)
+            print(type(self.activity))
         except json.decoder.JSONDecodeError as jde:
             errormessage = "[ERROR] Error decoding JSON activity file"
             self.setnotification(errormessage)
             self.sendnotifications()
-            self.log.write(errormessage)
-            self.log.write(type(self.activity))
-            self.log.write(jde)
+            print(errormessage)
+            print(type(self.activity))
+            print(jde)
             exit(1)
 
     def saveactivity(self):
         try:
             with open('raweather.activity', 'w') as json_file:
+                print('[DEBUG] writing {} to activity file'.format(self.activity))
                 json_file.writelines(json.dumps(self.activity))
         except Exception as e:
-            self.log.write(e)
+            print(e)
 
     def getweather(self):
         response = requests.get(self.config['wundergroundurl']).json()
         self.alertresponse = requests.get(self.config['wundergroundalerturl']).json()
-        # self.log.write(response)
-        # self.log.write(self.alertresponse)
+        # print(response)
+        # print(self.alertresponse)
         return response['forecast']['simpleforecast']['forecastday'][self.forecastday]
 
     def checkweatherconditions(self, weather):
@@ -111,21 +109,21 @@ class RaWeather():
 
     def sendnotifications(self):
         rat = RaTwitter()
-        lastnotification = dt.strptime(
+        last_notification= dt.strptime(
             self.activity['lastdailynotification']['date'], "%Y-%m-%d %H:%M:%S.%f"
         )
-        notificationtimes = self.config['notify']['daily']
+        notification_at_entries = self.config['notify']['daily']
 
-        for notifyat in notificationtimes:
+        for notify_at_entry in notification_at_entries:
             # get notify time with todays date as a datetime object
-            # self.log.write("DEBUG {}".format(notifyat))
-            notifyatdatetime = dt.strptime(
-                str(dt.now().date()) + ' ' + notifyat, '%Y-%m-%d %H:%M'
+            # print("DEBUG {}".format(notify_at_entry))
+            notify_at = dt.strptime(
+                str(dt.now().date()) + ' ' + notify_at_entry, '%Y-%m-%d %H:%M'
             )
             # is the configured notification time past, and has no notification already been sent?
-            # self.log.write(lastnotification)
-            # self.log.write(notifyatdatetime)
-            if (dt.now() > notifyatdatetime) and (lastnotification < notifyatdatetime):
+            # print('[DEBUG] last notification {}'.format(lastnotification))
+            # print('[DEBUG] notify at date time is {}'.format(notify_at))
+            if (dt.now() >= notify_at) and (last_notification < notify_at):
                 for notification in self.notifications:
                     if notification['type'] == 'notification':
                         message = '{}'.format(notification['message'])
@@ -147,11 +145,17 @@ class RaWeather():
         if self.notificationposted:
             self.activity['lastdailynotification']['message'] = self.lastnotificationpayload
             self.activity['lastdailynotification']['date'] = "{}".format(dt.now())
-        self.log.write('Final activity: {}'.format(self.activity))
+        print('Final activity: {}'.format(self.activity))
         self.saveactivity()
         return self.jobresults
 
 
 if __name__ == '__main__':
+    app = Flask(__name__)
+    import logging
+    from logging.handlers import RotatingFileHandler
+    handler = RotatingFileHandler('{}.log'.format(__name__), maxBytes=10000, backupCount=5)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
     raw = RaWeather()
     raw.check()
