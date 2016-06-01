@@ -109,7 +109,7 @@ class RaWeather():
 
     def sendnotifications(self):
         rat = RaTwitter()
-        last_notification= dt.strptime(
+        last_notification = dt.strptime(
             self.activity['lastdailynotification']['date'], "%Y-%m-%d %H:%M:%S.%f"
         )
         notification_at_entries = self.config['notify']['daily']
@@ -135,8 +135,13 @@ class RaWeather():
                         self.jobresults.append("Attempted to send notification: {}".format(message))
                         self.notificationposted = True  # we've sent a notification (not an alert)
                     if notification['type'] == 'alert':
-                        payload = r'{"text": "' + notification['message'] + r'"}'
-                        requests.post(self.config['slackposturl'], payload, '\n')
+                        # [2016-06-01 13:33:25.661834] switch to twitter dmgit s
+                        rat.direct_message(
+                            "metabot32",
+                            notification['message']
+                        )
+                        # payload = r'{"text": "' + notification['message'] + r'"}'
+                        # requests.post(self.config['slackposturl'], payload, '\n')
 
     def check(self):
         weather = self.getweather()
