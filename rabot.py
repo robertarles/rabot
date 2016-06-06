@@ -1,6 +1,5 @@
 from flask import Flask
 from raweather import RaWeather
-from ratwitter import RaTwitter
 from ragatherer import RaGatherer
 
 
