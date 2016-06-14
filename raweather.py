@@ -2,7 +2,7 @@
 import requests
 import json
 from datetime import datetime as dt
-from ratwitter import RaTwitter
+from curator import Curator
 from flask import Flask
 
 
@@ -108,7 +108,7 @@ class RaWeather():
         })
 
     def sendnotifications(self):
-        rat = RaTwitter()
+        curator = Curator()
         last_notification = dt.strptime(
             self.activity['lastdailynotification']['date'], "%Y-%m-%d %H:%M:%S.%f"
         )
@@ -127,18 +127,18 @@ class RaWeather():
                 for notification in self.notifications:
                     if notification['type'] == 'notification':
                         message = '{}'.format(notification['message'])
-                        rat.direct_message(
-                            "metabot32",
-                            message
+                        curator.process(
+                            message,
+                            ["`message`", "`store`"]
                         )
                         self.lastnotificationpayload = message
                         self.jobresults.append("Attempted to send notification: {}".format(message))
                         self.notificationposted = True  # we've sent a notification (not an alert)
                     if notification['type'] == 'alert':
                         # [2016-06-01 13:33:25.661834] switch to twitter dmgit s
-                        rat.direct_message(
-                            "metabot32",
-                            notification['message']
+                        comms.direct_message(
+                            notification['message'],
+                            ["`message`", "`store`"]
                         )
                         # payload = r'{"text": "' + notification['message'] + r'"}'
                         # requests.post(self.config['slackposturl'], payload, '\n')

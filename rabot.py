@@ -1,6 +1,7 @@
 from flask import Flask
 from raweather import RaWeather
 from ragatherer import RaGatherer
+from curator import Curator
 
 
 app = Flask(__name__)

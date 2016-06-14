@@ -1,3 +1,5 @@
 raweather.conf
 raweather.activity
 *.pyc
+*.activity
+*.conf
