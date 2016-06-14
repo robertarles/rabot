@@ -1,4 +1,4 @@
-#rabot
+# rabot
 A personal daemon, growing bit by bit as I have time. It is now a flask app that is intended to be run privately.
 This readme will get better as I go. For now, browsing the code should be relatively helpful as rabot is not very expansive yet.
 
@@ -6,6 +6,7 @@ Current:
 * Weather checks.
 * Sending of twitter DM updates.
 * Storage of activity (using MongoDB)
+
 Planned:
 * News checks.
 * Document storage, notes, references, etc.
