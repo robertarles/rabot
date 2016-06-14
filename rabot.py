@@ -1,6 +1,7 @@
 from flask import Flask
 from raweather import RaWeather
 from ragatherer import RaGatherer
+from rainfomanager import RaInfo
 
 
 app = Flask(__name__)
