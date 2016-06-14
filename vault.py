@@ -1,12 +1,12 @@
 from pymongo import MongoClient
 import datetime
 
-class RaStore(object):
+class Vault(object):
 
     def __init__(self):
         pass
 
-    def save(self, message, tags):
+    def store(self, message, tags):
         client = MongoClient('mongodb://localhost:27017/')
         db = client['rabot32']
         import datetime
@@ -24,5 +24,5 @@ class RaStore(object):
         results.inserted_ids
 
 if __name__ == '__main__':
-    ras = RaStore()
-    ras.save("some test message", ["twitter", "personal", "python"])
+    vault = Vault()
+    vault.store("some test message", ["twitter", "personal", "python"])

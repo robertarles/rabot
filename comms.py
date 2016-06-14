@@ -1,6 +1,6 @@
 import tweepy
 import os
-class RaTwitter():
+class Comms():
 
     # configuration for sending as rabot32
     def __init__(self):
@@ -22,5 +22,5 @@ class RaTwitter():
 
 
 if __name__ == '__main__':
-    rat = RaTwitter()
-    rat.direct_message('metabot32', 'chimichangaless')
+    comms = Comms()
+    comms.direct_message('metabot32', 'chimichangaless')
