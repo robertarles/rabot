@@ -20,6 +20,11 @@ class Curator(object):
                 vault = Vault()
                 vault.store(message, tags)
 
+        def get_recent_vault_activity(self, limit=10):
+            vault = Vault()
+            recent_vault_activity = vault.get_recent_activity(limit=limit)
+            return recent_vault_activity
+
 
 if __name__ == '__main__':
     curator = Curator()

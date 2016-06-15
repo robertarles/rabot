@@ -3,8 +3,8 @@ from raweather import RaWeather
 from ragatherer import RaGatherer
 from curator import Curator
 
-
 app = Flask(__name__)
+curator = Curator()
 
 
 @app.route("/raweather/check/")
@@ -21,6 +21,15 @@ def ragatherer_check():
     job_results = rag.check()
     app.logger.info(job_results)
     return 'ran ragatherer/check\n{}'.format(job_results)
+
+
+@app.route("/curator/recent/")
+def curator_recent():
+    response_text = ''
+    doc_list = curator.get_recent_vault_activity(limit=20)
+    for doc in doc_list:
+        response_text += '{}:{}</br>'.format(doc['message'], doc['date_updated'])
+    return '{}'.format(response_text)
 
 
 if __name__ == '__main__':
