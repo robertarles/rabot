@@ -136,10 +136,14 @@ class RaWeather():
                         self.notificationposted = True  # we've sent a notification (not an alert)
                     if notification['type'] == 'alert':
                         # [2016-06-01 13:33:25.661834] switch to twitter dmgit s
-                        comms.direct_message(
+                        curator.process(
                             notification['message'],
                             ["`message`", "`store`"]
                         )
+                        #comms.direct_message(
+                        #    notification['message'],
+                        #    ["`message`", "`store`"]
+                        #)
                         # payload = r'{"text": "' + notification['message'] + r'"}'
                         # requests.post(self.config['slackposturl'], payload, '\n')
 
