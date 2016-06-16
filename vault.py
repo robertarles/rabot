@@ -18,7 +18,7 @@ class Vault(object):
                 "date_updated": datetime.datetime.now(),
             }
         ]
-        posts = self.rabot32_db.posts
+        posts = self.rabot_db.posts
         results = posts.insert_many(post)
         results.inserted_ids
 
