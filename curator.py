@@ -12,17 +12,19 @@ class Curator(object):
                 "store": "`store`",
             }
 
-        def process(self, message, tags):
+        def process(self, message, tags, author='rabot32'):
             if self.tag_types['message'] in tags:
                 comms = Comms()
                 comms.direct_message(self.message_recipient, message)
             if self.tag_types['store'] in tags:
                 vault = Vault()
-                vault.store(message, tags)
+                vault.store(message, tags, author=author)
 
-        def get_recent_vault_activity(self, limit=10):
+        def get_recent_vault_activity(self, limit=10, author='rabot32', author_contains=None):
             vault = Vault()
-            recent_vault_activity = vault.get_recent_activity(limit=limit)
+            recent_vault_activity = vault.get_recent_activity(
+                limit=limit, author=author, author_contains=author_contains
+            )
             return recent_vault_activity
 
 
