@@ -4,6 +4,7 @@ import json
 from datetime import datetime as dt
 from curator import Curator
 from flask import Flask
+from datetime import datetime, timedelta
 
 
 class RaWeather():
@@ -21,10 +22,17 @@ class RaWeather():
         self.notificationposted = False
         self.lastnotificationpayload = None
 
+        self.last_vault_weather_notification = {}
+
+        self.author_name = 'rabot32-RaWeather'
+
+        self.jobresults = list()
+
+        self.curator = Curator()
+        # run initializations below
         self.loadactivity()
         self.loadconfig()
 
-        self.jobresults = list()
 
     def loadconfig(self):
         try:
@@ -49,33 +57,12 @@ class RaWeather():
             exit()
 
     def loadactivity(self):
-        try:
-            with open('raweather.activity', 'r') as json_data:
-                self.activity = json.load(json_data)
-                json_data.close()
-                print('Starting Activity: {}'.format(self.activity))
-        except FileNotFoundError:
-            errormessage = "[ERROR] Activity file not found"
-            self.setnotification(errormessage)
-            self.sendnotifications()
-            print(errormessage)
-            print(type(self.activity))
-        except json.decoder.JSONDecodeError as jde:
-            errormessage = "[ERROR] Error decoding JSON activity file"
-            self.setnotification(errormessage)
-            self.sendnotifications()
-            print(errormessage)
-            print(type(self.activity))
-            print(jde)
-            exit(1)
-
-    def saveactivity(self):
-        try:
-            with open('raweather.activity', 'w') as json_file:
-                print('[DEBUG] writing {} to activity file'.format(self.activity))
-                json_file.writelines(json.dumps(self.activity))
-        except Exception as e:
-            print(e)
+        activity_docs = self.curator.get_recent_vault_activity(limit=1, author=self.author_name)
+        if len(activity_docs) > 0:
+            self.last_vault_weather_notification = activity_docs[0]
+            print("[INFO] latest weather activity: {}".format(self.last_vault_weather_notification['date']))
+        else:
+            print("[INFO] no weather activity yet recorded")
 
     def getweather(self):
         response = requests.get(self.config['wundergroundurl']).json()
@@ -109,9 +96,14 @@ class RaWeather():
 
     def sendnotifications(self):
         curator = Curator()
-        last_notification = dt.strptime(
-            self.activity['lastdailynotification']['date'], "%Y-%m-%d %H:%M:%S.%f"
-        )
+        last_notification = None
+        if len(self.last_vault_weather_notification) > 0:
+            print("[DEBUG] sendnotifications last notification was at{}".format(self.last_vault_weather_notification['date']))
+            last_notification = self.last_vault_weather_notification['date']
+        else:
+            print("[DEBUG] no previous weather notifications")
+            last_notification = datetime.now() - timedelta(days=1)
+
         notification_at_entries = self.config['notify']['daily']
 
         for notify_at_entry in notification_at_entries:
@@ -121,15 +113,16 @@ class RaWeather():
                 str(dt.now().date()) + ' ' + notify_at_entry, '%Y-%m-%d %H:%M'
             )
             # is the configured notification time past, and has no notification already been sent?
-            # print('[DEBUG] last notification {}'.format(lastnotification))
-            # print('[DEBUG] notify at date time is {}'.format(notify_at))
+            print('[DEBUG] last notification {}'.format(last_notification))
+            print('[DEBUG] notify at date time is {}'.format(notify_at))
             if (dt.now() >= notify_at) and (last_notification < notify_at):
                 for notification in self.notifications:
                     if notification['type'] == 'notification':
                         message = '{}'.format(notification['message'])
                         curator.process(
                             message,
-                            ["`message`", "`store`"]
+                            ["`message`", "`store`"],
+                            author=self.author_name
                         )
                         self.lastnotificationpayload = message
                         self.jobresults.append("Attempted to send notification: {}".format(message))
@@ -138,12 +131,13 @@ class RaWeather():
                         # [2016-06-01 13:33:25.661834] switch to twitter dmgit s
                         curator.process(
                             notification['message'],
-                            ["`message`", "`store`"]
+                            ["`message`", "`store`"],
+                            author=self.author_name
                         )
-                        #comms.direct_message(
+                        # comms.direct_message(
                         #    notification['message'],
                         #    ["`message`", "`store`"]
-                        #)
+                        # )
                         # payload = r'{"text": "' + notification['message'] + r'"}'
                         # requests.post(self.config['slackposturl'], payload, '\n')
 
@@ -151,11 +145,6 @@ class RaWeather():
         weather = self.getweather()
         self.checkweatherconditions(weather)
         self.sendnotifications()
-        if self.notificationposted:
-            self.activity['lastdailynotification']['message'] = self.lastnotificationpayload
-            self.activity['lastdailynotification']['date'] = "{}".format(dt.now())
-        print('Final activity: {}'.format(self.activity))
-        self.saveactivity()
         return self.jobresults
 
 
