@@ -33,7 +33,6 @@ class RaWeather():
         self.loadactivity()
         self.loadconfig()
 
-
     def loadconfig(self):
         try:
             with open('./raweather.conf', 'r') as json_data:
@@ -60,7 +59,8 @@ class RaWeather():
         activity_docs = self.curator.get_recent_vault_activity(limit=1, author=self.author_name)
         if len(activity_docs) > 0:
             self.last_vault_weather_notification = activity_docs[0]
-            print("[INFO] latest weather activity: {}".format(self.last_vault_weather_notification['date']))
+            print("[INFO] latest weather activity: {}".format(
+                self.last_vault_weather_notification['date']))
         else:
             print("[INFO] no weather activity yet recorded")
 
@@ -98,7 +98,8 @@ class RaWeather():
         curator = Curator()
         last_notification = None
         if len(self.last_vault_weather_notification) > 0:
-            print("[DEBUG] sendnotifications last notification was at{}".format(self.last_vault_weather_notification['date']))
+            print("[DEBUG] sendnotifications last notification was at{}".format(
+                self.last_vault_weather_notification['date']))
             last_notification = self.last_vault_weather_notification['date']
         else:
             print("[DEBUG] no previous weather notifications")
@@ -128,18 +129,16 @@ class RaWeather():
                         self.jobresults.append("Attempted to send notification: {}".format(message))
                         self.notificationposted = True  # we've sent a notification (not an alert)
                     if notification['type'] == 'alert':
-                        # [2016-06-01 13:33:25.661834] switch to twitter dmgit s
+                        message_string = notification['message'].replace(
+                            "Weather ALERT: ", '').replace(
+                            "'", '"'
+                            )
+                        message_json = json.loads(message_string)
                         curator.process(
-                            notification['message'],
+                            message_json['message'],
                             ["`message`", "`store`"],
                             author=self.author_name
                         )
-                        # comms.direct_message(
-                        #    notification['message'],
-                        #    ["`message`", "`store`"]
-                        # )
-                        # payload = r'{"text": "' + notification['message'] + r'"}'
-                        # requests.post(self.config['slackposturl'], payload, '\n')
 
     def check(self):
         weather = self.getweather()
