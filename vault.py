@@ -25,7 +25,6 @@ class Vault(object):
     def get_recent_activity(self, limit=10, author='rabot32', author_contains=None):
         doc_list = []
         recent_activity = None
-        regex_search_author_contains = ""
         if author_contains is not None:
             recent_activity = self.rabot_db.posts.find(
                 {"author": {"$regex": ".*" + author_contains + ".*"}}

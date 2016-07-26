@@ -1,5 +1,7 @@
 import tweepy
 import os
+
+
 class Comms():
 
     # configuration for sending as rabot32
@@ -10,10 +12,17 @@ class Comms():
             self.secrets = dict([line.strip().split('=') for line in f])
 
     def direct_message(self, handle, message):
-        auth = tweepy.OAuthHandler(self.secrets["consumer_key"], self.secrets["consumer_secret"])
-        auth.set_access_token(self.secrets["access_token"], self.secrets["access_token_secret"])
-        api = tweepy.API(auth)
-        api.send_direct_message(user=handle, text=message)
+        try:
+            auth = tweepy.OAuthHandler(
+                self.secrets["consumer_key"], self.secrets["consumer_secret"])
+            auth.set_access_token(
+                self.secrets["access_token"], self.secrets["access_token_secret"])
+            api = tweepy.API(auth)
+            api.send_direct_message(user=handle, text=message)
+        except Exception as e:
+            print("[EXCEPTION] {}".format(e.message))
+            return False
+        return True
         # public_tweets = api.home_timeline()
         # for tweet in public_tweets:
         #     print(tweet.text)

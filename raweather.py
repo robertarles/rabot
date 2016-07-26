@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3
 import requests
 import json
+import os
 from datetime import datetime as dt
 from curator import Curator
 from flask import Flask
@@ -18,11 +19,13 @@ class RaWeather():
         self.forecastday = day  # 0 = today, 1 = tomorrow
         self.alertresponse = dict()
         self.notifications = list()
-        self.weatherweathericonurl = None
         self.notificationposted = False
         self.lastnotificationpayload = None
 
         self.last_vault_weather_notification = {}
+
+        self.DEFAULT_LOCATION = "CA/Highland"
+        self.iphone_ra_location_latest = self.get_device_location("iphone_ra")
 
         self.author_name = 'rabot32-RaWeather'
 
@@ -35,24 +38,24 @@ class RaWeather():
 
     def loadconfig(self):
         try:
-            with open('./raweather.conf', 'r') as json_data:
+            with open(os.path.expanduser('~') + '/.rabot/raweather.conf', 'r') as json_data:
                 self.config = json.load(json_data)
                 json_data.close()
-                # print('Starting Config: {}'.format(self.config))
+                # print('[DEBUG] Starting Config: {}'.format(self.config))
         except FileNotFoundError:
-            errormessage = "[ERROR] Config file not found [{}]".format(self.configfile)
+            print("[EXCEPTION] self.config type is [{}]".format(type(self.config)))
+            errormessage = "[EXCEPTiON] Config file not found [{}]".format(self.configfile)
+            print("[EXCEPTION] {}".format(errormessage))
             self.setnotification(errormessage)
             self.sendnotifications()
-            print(errormessage)
-            print(type(self.config))
             exit()
         except json.decoder.JSONDecodeError as jde:
-            errormessage = "[ERROR] Error decoding JSON config file"
+            errormessage = "[EXCEPTION] Error decoding JSON config file"
+            print("[EXCEPTION] {}".format(errormessage))
+            print(type(self.config))
+            print("[EXCEPTION] {}".format(jde))
             self.setnotification(errormessage)
             self.sendnotifications()
-            print(errormessage)
-            print(type(self.config))
-            print(jde)
             exit()
 
     def loadactivity(self):
@@ -64,8 +67,25 @@ class RaWeather():
         else:
             print("[INFO] no weather activity yet recorded")
 
+    def get_device_location(self, device="iphone_ra"):
+        location = self.DEFAULT_LOCATION
+        try:
+            with open(
+                os.path.expanduser('~') + '/.rabot/' + device + "_location.json", "r"
+            ) as device_location_file:
+                device_location_json = json.loads(device_location_file.read())
+                location = "{},{}".format(
+                    device_location_json["latitude"],
+                    device_location_json['longitude']
+                )
+        except FileNotFoundError as fnfe:
+            print("[EXCEPTION] Device Location File Not Found \n {}".format(fnfe))
+        return location
+
     def getweather(self):
-        response = requests.get(self.config['wundergroundurl']).json()
+        url = self.config['wundergroundurl'].replace("[LOCATION]", self.iphone_ra_location_latest)
+        # print("[DEBUG] checking {}".format(url))
+        response = requests.get(url).json()
         self.alertresponse = requests.get(self.config['wundergroundalerturl']).json()
         # print(response)
         # print(self.alertresponse)
@@ -74,18 +94,26 @@ class RaWeather():
     def checkweatherconditions(self, weather):
         forecasthigh = int(weather["high"]['fahrenheit'])
         forecastlow = int(weather['low']['fahrenheit'])
-        self.weathericonurl = weather['icon_url']
+        icon_name = weather['icon']
         forecastconditions = weather['conditions']
+        # print("[DEBUG] forcastconditions [{}]".format(forecastconditions.lower()))
         for notificationcondition in self.config['notificationconditions']:
-            if notificationcondition in forecastconditions.lower():
-                self.setnotification('{} tomorrow'.format(notificationcondition))
+            # print('[DEBUG]{}, {} in {}'.format(
+            #     notificationcondition.lower() in forecastconditions.lower(),
+            #     notificationcondition.lower(), forecastconditions.lower()))
+            if notificationcondition.lower() in forecastconditions.lower():
+                self.setnotification(
+                    '[{}] Notification of {} tomorrow'.format(icon_name, notificationcondition))
         if forecastlow <= self.config['notify']['temp']['min']:
-            self.setnotification('Low tomorrow of {}'.format(forecastlow))
+            self.setnotification(
+                '[{}] Low tomorrow of {}'.format(icon_name, forecastlow))
         if forecasthigh >= self.config['notify']['temp']['max']:
-            self.setnotification('High tomorrow of {}'.format(forecasthigh))
-        if self.alertresponse['alerts'] is not None:
+            self.setnotification(
+                '[{}] High tomorrow of {}'.format(icon_name, forecasthigh))
+        if 'alerts' in self.alertresponse.keys() and self.alertresponse['alerts'] is not None:
             for alert in self.alertresponse['alerts']:
-                self.setnotification('Weather ALERT: {}'.format(alert), type='alert')
+                self.setnotification(
+                    '[{}] Weather ALERT: {}'.format(icon_name, alert), type='alert')
         self.jobresults.append('Notifications to be sent: {}'.format(len(self.notifications)))
 
     def setnotification(self, subject, type='notification'):
@@ -98,13 +126,12 @@ class RaWeather():
         curator = Curator()
         last_notification = None
         if len(self.last_vault_weather_notification) > 0:
-            print("[DEBUG] sendnotifications last notification was at{}".format(
-                self.last_vault_weather_notification['date']))
+            # print("[DEBUG] sendnotifications last notification was at{}".format(
+            #     self.last_vault_weather_notification['date']))
             last_notification = self.last_vault_weather_notification['date']
         else:
-            print("[DEBUG] no previous weather notifications")
+            # print("[DEBUG] no previous weather notifications")
             last_notification = datetime.now() - timedelta(days=1)
-
         notification_at_entries = self.config['notify']['daily']
 
         for notify_at_entry in notification_at_entries:
@@ -114,8 +141,8 @@ class RaWeather():
                 str(dt.now().date()) + ' ' + notify_at_entry, '%Y-%m-%d %H:%M'
             )
             # is the configured notification time past, and has no notification already been sent?
-            print('[DEBUG] last notification {}'.format(last_notification))
-            print('[DEBUG] notify at date time is {}'.format(notify_at))
+            # print('[DEBUG] last notification {}'.format(last_notification))
+            # print('[DEBUG] notify at date time is {}'.format(notify_at))
             if (dt.now() >= notify_at) and (last_notification < notify_at):
                 for notification in self.notifications:
                     if notification['type'] == 'notification':

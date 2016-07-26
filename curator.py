@@ -9,13 +9,16 @@ class Curator(object):
             self.message_recipient = "metabot32"
             self.tag_types = {
                 "message": "`message`",
+                "messaged": "`messaged`",
                 "store": "`store`",
             }
 
         def process(self, message, tags, author='rabot32'):
             if self.tag_types['message'] in tags:
                 comms = Comms()
-                comms.direct_message(self.message_recipient, message)
+                if comms.direct_message(self.message_recipient, message) is True:
+                    # If the message failed to send, then no 'messaged' tag will be added
+                    tags.append(self.tag_types['messaged'])
             if self.tag_types['store'] in tags:
                 vault = Vault()
                 vault.store(message, tags, author=author)

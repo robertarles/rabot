@@ -1,6 +1,7 @@
 from flask import Flask
 from raweather import RaWeather
 from ragatherer import RaGatherer
+import ralocation
 from curator import Curator
 
 app = Flask(__name__)
@@ -30,6 +31,12 @@ def curator_recent():
     for doc in doc_list:
         response_text += '{}:{}</br>'.format(doc['message'], doc['date_updated'])
     return '{}'.format(response_text)
+
+
+@app.route("/ralocation/update/")
+def ralocation_update():
+    ralocation.update_location()
+    return 'ralocation updated'
 
 
 if __name__ == '__main__':
