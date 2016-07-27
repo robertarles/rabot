@@ -42,14 +42,14 @@ class RaWeather():
                 self.config = json.load(json_data)
                 json_data.close()
                 # print('[DEBUG] Starting Config: {}'.format(self.config))
-        except FileNotFoundError:
+        except (OSError, IOError):
             print("[EXCEPTION] self.config type is [{}]".format(type(self.config)))
             errormessage = "[EXCEPTiON] Config file not found [{}]".format(self.configfile)
             print("[EXCEPTION] {}".format(errormessage))
             self.setnotification(errormessage)
             self.sendnotifications()
             exit()
-        except json.decoder.JSONDecodeError as jde:
+        except Exception as jde:
             errormessage = "[EXCEPTION] Error decoding JSON config file"
             print("[EXCEPTION] {}".format(errormessage))
             print(type(self.config))
