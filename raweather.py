@@ -6,6 +6,7 @@ from datetime import datetime as dt
 from curator import Curator
 from flask import Flask
 from datetime import datetime, timedelta
+import ralocation
 
 
 class RaWeather():
@@ -24,7 +25,7 @@ class RaWeather():
 
         self.last_vault_weather_notification = {}
 
-        self.DEFAULT_LOCATION = "CA/Highland"
+        self.DEFAULT_LOCATION = "34.1129745,-117.1628703"  # = "CA/Highland"
         self.iphone_ra_location_latest = self.get_device_location("iphone_ra")
 
         self.author_name = 'rabot32-RaWeather'
@@ -74,12 +75,25 @@ class RaWeather():
                 os.path.expanduser('~') + '/.rabot/' + device + "_location.json", "r"
             ) as device_location_file:
                 device_location_json = json.loads(device_location_file.read())
-                location = "{},{}".format(
+                current_location = "{},{}".format(
                     device_location_json["latitude"],
                     device_location_json['longitude']
                 )
+                # only use this current location if its far from home (not on a drive or at work)
+                home_lat = float(self.DEFAULT_LOCATION.split(",")[0])
+                home_long = float(self.DEFAULT_LOCATION.split(",")[1])
+                default_coords = {"lat": home_lat, "long": home_long}
+                current_coords = {
+                    "lat": device_location_json["latitude"],
+                    "long": device_location_json['longitude']
+                }
+                distance_from_home = ralocation.haversine(default_coords, current_coords)
+                if distance_from_home["miles"] > 100:
+                    location = current_location
         except FileNotFoundError as fnfe:
             print("[EXCEPTION] Device Location File Not Found \n {}".format(fnfe))
+        except Exception as e:
+            print("[EXCEPTION] JSON decode exception caught?\n {}".format(e))
         return location
 
     def getweather(self):
