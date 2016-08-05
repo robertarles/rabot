@@ -1,11 +1,15 @@
 from flask import Flask
+from flask import render_template
+from flask import make_response
 from raweather import RaWeather
 from ragatherer import RaGatherer
-import ralocation
 from curator import Curator
+from cartographer import Cartographer
+import ralocation
 
 app = Flask(__name__)
 curator = Curator()
+cort = Cartographer()
 
 
 @app.route("/raweather/check/")
@@ -39,5 +43,19 @@ def ralocation_update():
     return 'ralocation updated'
 
 
+@app.route("/cartographer/")
+def cartographer():
+    coords = cort.get_ra_iphone_coords()
+    print(type(cartographer))
+    response = make_response(
+        render_template(
+            'ralocation.html',
+            latitude=coords[0],
+            longitude=coords[1],
+            maps_api_key=cort.get_maps_api_key())
+    )
+    return response
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=6000)
+    app.run(debug=True, host='0.0.0.0', port=5555)
