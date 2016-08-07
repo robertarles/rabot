@@ -1,23 +1,22 @@
 from flask import Flask
 from flask import render_template
 from flask import make_response
-from raweather import RaWeather
+from meteorologist import Meteorologist
 from ragatherer import RaGatherer
 from curator import Curator
 from cartographer import Cartographer
-import ralocation
 
 app = Flask(__name__)
 curator = Curator()
 cort = Cartographer()
 
 
-@app.route("/raweather/check/")
-def raweather_check():
-    raw = RaWeather()
-    job_results = raw.check()
+@app.route("/meteorologist/check/")
+def meteorologist_check():
+    sunny = Meteorologist()
+    job_results = sunny.check()
     app.logger.info(job_results)
-    return 'ran raweather/check\n{}'.format(job_results)
+    return 'ran meteorologist/check\n{}'.format(job_results)
 
 
 @app.route("/ragatherer/check/")
@@ -37,19 +36,23 @@ def curator_recent():
     return '{}'.format(response_text)
 
 
-@app.route("/ralocation/update/")
-def ralocation_update():
-    ralocation.update_location()
-    return 'ralocation updated'
+@app.route("/cartographer/location/update/")
+@app.route("/cartographer/location/update/<name>")
+def ralocation_update(name=""):
+    cort = Cartographer()
+    cort.update_location()
+    return 'ran cartographer/update'
 
 
 @app.route("/cartographer/")
-def cartographer():
+@app.route("/cartographer/location/")
+@app.route("/cartographer/location/<name>")
+def cartographer_location(name=""):
+    ''' where am we? '''
     coords = cort.get_ra_iphone_coords()
-    print(type(cartographer))
     response = make_response(
         render_template(
-            'ralocation.html',
+            'cartographer.html',
             latitude=coords[0],
             longitude=coords[1],
             maps_api_key=cort.get_maps_api_key())

@@ -6,10 +6,10 @@ from datetime import datetime as dt
 from curator import Curator
 from flask import Flask
 from datetime import datetime, timedelta
-import ralocation
+import cartographer
 
 
-class RaWeather():
+class Meteorologist():
     """
     Check tomorrows weather for conditions I want to be alerted on
     """
@@ -87,7 +87,7 @@ class RaWeather():
                     "lat": device_location_json["latitude"],
                     "long": device_location_json['longitude']
                 }
-                distance_from_home = ralocation.haversine(default_coords, current_coords)
+                distance_from_home = cartographer.haversine(default_coords, current_coords)
                 if distance_from_home["miles"] > 100:
                     location = current_location
         except FileNotFoundError as fnfe:
@@ -195,5 +195,5 @@ if __name__ == '__main__':
     handler = RotatingFileHandler('{}.log'.format(__name__), maxBytes=10000, backupCount=5)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
-    raw = RaWeather()
-    raw.check()
+    sunny = Meteorologist()
+    sunny.check()
