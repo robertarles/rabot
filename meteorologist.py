@@ -18,8 +18,8 @@ class Meteorologist():
         self.config = None
         self.activity = None
         self.forecastday = day  # 0 = today, 1 = tomorrow
-        self.alertresponse = dict()
-        self.notifications = list()
+        self.alertresponse = {}
+        self.notifications = []
         self.notificationposted = False
         self.lastnotificationpayload = None
 
@@ -30,7 +30,7 @@ class Meteorologist():
 
         self.author_name = 'rabot32-RaWeather'
 
-        self.jobresults = list()
+        self.jobresults = []
 
         self.curator = Curator()
         # run initializations below
@@ -45,7 +45,7 @@ class Meteorologist():
                 # print('[DEBUG] Starting Config: {}'.format(self.config))
         except (OSError, IOError):
             print("[EXCEPTION] self.config type is [{}]".format(type(self.config)))
-            errormessage = "[EXCEPTiON] Config file not found [{}]".format(self.configfile)
+            errormessage = "[EXCEPTION] Config file not found [{}]".format(self.config)
             print("[EXCEPTION] {}".format(errormessage))
             self.setnotification(errormessage)
             self.sendnotifications()
