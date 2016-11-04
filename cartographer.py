@@ -3,13 +3,18 @@ import json
 from pyicloud import PyiCloudService
 from math import pi, sqrt, sin, cos, atan2
 
+iphone_location_json_file = os.path.expanduser('~') + "/.rabot/iphone_ra_location.json"
+icloud_config_file = os.path.expanduser('~') + '/.rabot/icloud.conf'
+google_maps_api_config_file = os.path.expanduser('~') + "/.google/map-api.conf"
+iphone_ra_icloud_device_id = '6bVMcYPLaUNZIB3AYAUFpkeoUDLTkf4opPflqToK7apYS9ujn5gNiOHYVNSUzmWV'
+
 
 class Cartographer(object):
 
     def get_ra_iphone_coords(self):
         location_dict = {}
         with open(
-            os.path.expanduser('~') + "/.rabot/iphone_ra_location.json", "r"
+                iphone_location_json_file, "r"
         ) as iphone_ra_location_file:
             location_dict = json.loads(iphone_ra_location_file.read())
         coords = (location_dict['latitude'], location_dict['longitude'])
@@ -17,26 +22,24 @@ class Cartographer(object):
 
     def get_maps_api_key(self):
         api_key = ""
-        with open(os.path.expanduser('~') + "/.google/map-api.conf", "r") as conf_file:
+        with open(google_maps_api_config_file, "r") as conf_file:
             api_key = json.loads(conf_file.read())['api-key']
         return api_key
 
-
     def update_location(self):
-        with open(os.path.expanduser('~') + '/.rabot/icloud.conf', 'r') as icloud_file:
+        with open(icloud_config_file, 'r') as icloud_file:
             icloud_config = icloud_file.read().rstrip('\n').split(',')
         api = PyiCloudService(*icloud_config)
         print("[LOG] Querying device via iCloud")
-        iphone_ra = api.devices['6bVMcYPLaUNZIB3AYAUFpkeoUDLTkf4opPflqToK7apYS9ujn5gNiOHYVNSUzmWV']
+        iphone_ra = api.devices[iphone_ra_icloud_device_id]
         iphone_ra_location = iphone_ra.location()
         if iphone_ra_location is None:
             print("[ERROR] location was not available right now")
         else:
             with open(
-                os.path.expanduser('~') + "/.rabot/iphone_ra_location.json", "w"
+                iphone_location_json_file, "w"
             ) as iphone_ra_location_file:
                 iphone_ra_location_file.write(json.dumps(iphone_ra_location))
-
 
     def haversine(self, pos1, pos2):
         '''calculate the distance between two lat/long positions'''

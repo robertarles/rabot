@@ -1,4 +1,5 @@
-import tweepy
+import requests
+import json
 import os
 
 
@@ -6,30 +7,18 @@ class Comms():
 
     # configuration for sending as rabot32
     def __init__(self):
-        self.secrets = None
+        self.config = None
         # read the twitter api secrets from ~/.twitter
-        with open((os.path.expanduser('~') + '/.twitter'), 'r') as f:
-            self.secrets = dict([line.strip().split('=') for line in f])
+        with open((os.path.expanduser('~') + '/.rabot/comms.conf'), 'r') as json_config:
+            self.config = json.load(json_config)
 
     def direct_message(self, handle, message):
-        try:
-            auth = tweepy.OAuthHandler(
-                self.secrets["consumer_key"], self.secrets["consumer_secret"])
-            auth.set_access_token(
-                self.secrets["access_token"], self.secrets["access_token_secret"])
-            api = tweepy.API(auth)
-            api.send_direct_message(user=handle, text=message)
-        except Exception as e:
-            print("[EXCEPTION] {}".format(e.message))
-            return False
-        return True
-        # public_tweets = api.home_timeline()
-        # for tweet in public_tweets:
-        #     print(tweet.text)
-        # for member in inspect.getmembers(api):
-        #     print(member)  # direct_message("metabot32", "testing")
-
+        payload={"text": message}
+        response = requests.post(self.config["slack_url"],
+                      data=json.dumps(payload))
+        if response.status_code != 200:
+            print("[ERROR] Comms.direct_message() got a non 'http 200' response from slack.")
 
 if __name__ == '__main__':
     comms = Comms()
-    comms.direct_message('metabot32', 'chimichangaless')
+    comms.direct_message('metabot32', 'tacko eatin, hambre')

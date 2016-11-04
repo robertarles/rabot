@@ -28,7 +28,7 @@ class Meteorologist():
         self.DEFAULT_LOCATION = "34.1129745,-117.1628703"  # = "CA/Highland"
         self.iphone_ra_location_latest = self.get_device_location("iphone_ra")
 
-        self.author_name = 'rabot32-RaWeather'
+        self.author_name = 'rabot32-Meteorologist'
 
         self.jobresults = []
 
@@ -39,7 +39,7 @@ class Meteorologist():
 
     def loadconfig(self):
         try:
-            with open(os.path.expanduser('~') + '/.rabot/raweather.conf', 'r') as json_data:
+            with open(os.path.expanduser('~') + '/.rabot/meteorologist.conf', 'r') as json_data:
                 self.config = json.load(json_data)
                 json_data.close()
                 # print('[DEBUG] Starting Config: {}'.format(self.config))
