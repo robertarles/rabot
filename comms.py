@@ -14,8 +14,10 @@ class Comms():
 
     def direct_message(self, handle, message):
         payload = {
-            "text": '@{}, {}'.format(handle, message),
+            "text": '{}'.format(handle, message),
             "icon_emoji": ":ghost:",
+            # "channel": "#channel-name",
+            # "channel": "@username",
             "username": "rabot32"
         }
         response = requests.post(self.config["slack_url"],
