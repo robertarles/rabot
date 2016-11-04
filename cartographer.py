@@ -6,6 +6,7 @@ from math import pi, sqrt, sin, cos, atan2
 
 class Cartographer(object):
 
+
     def get_ra_iphone_coords(self):
         location_dict = {}
         with open(
@@ -14,6 +15,7 @@ class Cartographer(object):
             location_dict = json.loads(iphone_ra_location_file.read())
         coords = (location_dict['latitude'], location_dict['longitude'])
         return coords
+
 
     def get_maps_api_key(self):
         api_key = ""

@@ -6,7 +6,7 @@ from datetime import datetime as dt
 from curator import Curator
 from flask import Flask
 from datetime import datetime, timedelta
-import cartographer
+from cartographer import Cartographer
 
 
 class Meteorologist():
@@ -45,7 +45,7 @@ class Meteorologist():
                 # print('[DEBUG] Starting Config: {}'.format(self.config))
         except (OSError, IOError):
             print("[EXCEPTION] self.config type is [{}]".format(type(self.config)))
-            errormessage = "[EXCEPTiON] Config file not found [{}]".format(self.configfile)
+            errormessage = "[EXCEPTiON] Config file not found [{}]".format(self.config)
             print("[EXCEPTION] {}".format(errormessage))
             self.setnotification(errormessage)
             self.sendnotifications()
@@ -87,7 +87,8 @@ class Meteorologist():
                     "lat": device_location_json["latitude"],
                     "long": device_location_json['longitude']
                 }
-                distance_from_home = cartographer.haversine(default_coords, current_coords)
+                cort = Cartographer()
+                distance_from_home = cort.haversine(default_coords, current_coords)
                 if distance_from_home["miles"] > 100:
                     location = current_location
         except FileNotFoundError as fnfe:

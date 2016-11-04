@@ -2,7 +2,7 @@
 pushd /home/robert/opt/rabot
 source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
 workon rabot
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 # debug mode, runs using flask server
 #python rabot.py
 # production mode, runs using uwsgi server
