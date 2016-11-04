@@ -13,7 +13,11 @@ class Comms():
             self.config = json.load(json_config)
 
     def direct_message(self, handle, message):
-        payload={"text": message}
+        payload = {
+            "text": '@{}, {}'.format(handle, message),
+            "icon_emoji": ":ghost:",
+            "username": "rabot32"
+        }
         response = requests.post(self.config["slack_url"],
                       data=json.dumps(payload))
         if response.status_code != 200:
@@ -21,4 +25,4 @@ class Comms():
 
 if __name__ == '__main__':
     comms = Comms()
-    comms.direct_message('metabot32', 'tacko eatin, hambre')
+    comms.direct_message('metarobert', 'tacko eatin, hambre')
