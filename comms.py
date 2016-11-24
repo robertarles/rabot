@@ -25,4 +25,4 @@ class Comms():
 
 if __name__ == '__main__':
     comms = Comms()
-    comms.direct_message('metarobert', 'tacko eatin, hambre')
+    comms.direct_message('metarobert', 'tacko eatin, hambre.')
