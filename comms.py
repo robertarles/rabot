@@ -8,7 +8,6 @@ class Comms():
     # configuration for sending as rabot32
     def __init__(self):
         self.config = None
-        # read the twitter api secrets from ~/.twitter
         with open((os.path.expanduser('~') + '/.rabot/comms.conf'), 'r') as json_config:
             self.config = json.load(json_config)
 
