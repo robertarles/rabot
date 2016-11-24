@@ -91,6 +91,7 @@ class Meteorologist():
                 if distance_from_home["miles"] > 100:
                     location = current_location
         except FileNotFoundError as fnfe:
+            print("[EXCEPTION] FILE: [{}]".format(os.path.expanduser('~') + '/.rabot/' + device + "_location.json", "r"))
             print("[EXCEPTION] Device Location File Not Found \n {}".format(fnfe))
         except Exception as e:
             print("[EXCEPTION] JSON decode exception caught?\n {}".format(e))
