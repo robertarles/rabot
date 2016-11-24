@@ -5,7 +5,6 @@ import os
 
 class Comms():
 
-    # configuration for sending as rabot32
     def __init__(self):
         self.config = None
         with open((os.path.expanduser('~') + '/.rabot/comms.conf'), 'r') as json_config:
