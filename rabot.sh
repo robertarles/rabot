@@ -1,5 +1,5 @@
 #!/bin/zsh
-pushd /home/robert/opt/rabot
+pushd /opt/rabot
 source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
 workon rabot
 pip install -r requirements.txt
