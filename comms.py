@@ -12,7 +12,7 @@ class Comms():
 
     def direct_message(self, handle, message):
         payload = {
-            "text": '{}'.format(handle, message),
+            "text": '{}, {}'.format(handle, message),
             "icon_emoji": ":ghost:",
             # "channel": "#channel-name",
             # "channel": "@username",

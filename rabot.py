@@ -13,7 +13,6 @@ cort = Cartographer()
 
 @app.route("/meteorologist/check/")
 def meteorologist_check():
-    print("[DEBUG] /meteorologist/check/ was called")
     sunny = Meteorologist()
     job_results = sunny.check()
     app.logger.info(job_results)
