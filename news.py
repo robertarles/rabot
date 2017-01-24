@@ -8,10 +8,11 @@ from  newspaper.article import ArticleException
 from pymongo import MongoClient
 
 class Reporter:
+    
     def __init__(self):
         self.client = MongoClient('mongodb://localhost:27017/')
         self.rabot_db = self.client.rabot32
-        self.driver = webdriver.PhantomJS(executable_path="/Users/robert/bin/phantomjs")
+        self.driver = webdriver.PhantomJS(executable_path="/usr/local/bin/phantomjs")
         self.hot_search_count_min = 500000
 
     def get_trends(self):
@@ -85,6 +86,10 @@ class Reporter:
             db_result = self.rabot_db.posted_timely.insert_one(article)
             article["reposted"] = 1
         print("[DEBUG] post complete with response " + str(response.status_code))
+    
+    def close(self):
+        self.driver.close()
+
 
 if __name__ == "__main__":
     johnny_onthespot = Reporter()

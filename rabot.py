@@ -18,7 +18,7 @@ def post_timely_articles():
     johnny_onthespot = Reporter()
     hot_trends_list = johnny_onthespot.get_hot_trends()
     johnny_onthespot.post_articles(hot_trends_list)
-
+    johnny_onthespot.close()
 
 @app.route("/meteorologist/check/")
 def meteorologist_check():
