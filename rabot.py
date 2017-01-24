@@ -5,10 +5,19 @@ from meteorologist import Meteorologist
 from ragatherer import RaGatherer
 from curator import Curator
 from cartographer import Cartographer
+from news import Reporter
 
 app = Flask(__name__)
 curator = Curator()
 cort = Cartographer()
+johnny_onthespot = Reporter()
+
+
+@app.route("/news/post_timely_articles/")
+def post_timely_articles():
+    johnny_onthespot = Reporter()
+    hot_trends_list = johnny_onthespot.get_hot_trends()
+    johnny_onthespot.post_articles(hot_trends_list)
 
 
 @app.route("/meteorologist/check/")

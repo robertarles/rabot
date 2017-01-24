@@ -21,7 +21,13 @@ class Curator(object):
                     tags.append(self.tag_types['messaged'])
             if self.tag_types['store'] in tags:
                 vault = Vault()
-                vault.store(message, tags, author=author)
+                vault.store(message, tags=['store'], author=author)
+
+        def process_trends(self, trends, tags, author='rabot32'):
+            if self.tag_types['store'] in tags:
+                vault = Vault()
+                vault.store_trends(trends, ["`store`", "trends"], author=author)
+
 
         def get_recent_vault_activity(self, limit=10, author='rabot32', author_contains=None):
             vault = Vault()

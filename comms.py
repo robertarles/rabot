@@ -23,6 +23,10 @@ class Comms():
         if response.status_code != 200:
             print("[ERROR] Comms.direct_message() got a non 'http 200' response from slack.")
 
+    def telegraph_message(self, handle, message):
+        pass
+
 if __name__ == '__main__':
     comms = Comms()
-    comms.direct_message('metarobert', 'tacko eatin, hambre.')
+    # comms.direct_message('metarobert', 'tacko eatin, hambre.')
+    comms.telegraph_message('metarobert', 'hack the cyber, fat bed sitting cyber hacker')

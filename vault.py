@@ -8,7 +8,7 @@ class Vault(object):
         self.client = MongoClient('mongodb://localhost:27017/')
         self.rabot_db = self.client.rabot32
 
-    def store(self, message, tags=["`store`"], author='rabot32'):
+    def store(self, message, tags=["`store`", "message"], author='rabot32'):
         post = [
             {
                 "author": author,
@@ -21,6 +21,18 @@ class Vault(object):
         posts = self.rabot_db.posts
         results = posts.insert_many(post)
         results.inserted_ids
+
+    def store_trends(self, trend_list, tags=["`store`", "trends"], author='rabot32'):
+        trends = self.rabot_db.trends
+        inserted_ids = []
+        for trend in trend_list:
+            trend["author"] = author
+            trend["tags"] = tags
+            trend["date"] = datetime.datetime.now()
+            trend["date_updated"] = datetime.datetime.now()
+            results = trends.insert_one(trend)
+            inserted_ids.append(results.inserted_id)
+        return inserted_ids
 
     def get_recent_activity(self, limit=10, author='rabot32', author_contains=None):
         doc_list = []
