@@ -10,7 +10,7 @@ from pymongo import MongoClient
 class Reporter:
     def __init__(self):
         self.client = MongoClient('mongodb://localhost:27017/')
-        self.rabot_db = self.client.rabot3
+        self.rabot_db = self.client.rabot32
         self.driver = webdriver.PhantomJS(executable_path="/Users/robert/bin/phantomjs")
         self.hot_search_count_min = 500000
 
