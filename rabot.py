@@ -19,6 +19,8 @@ def post_timely_articles():
     hot_trends_list = johnny_onthespot.get_hot_trends()
     johnny_onthespot.post_articles(hot_trends_list)
     johnny_onthespot.close()
+    return 'ran news/post_timely_articles/\n{}'.format(hot_trends_list)
+
 
 @app.route("/meteorologist/check/")
 def meteorologist_check():
@@ -70,4 +72,4 @@ def cartographer_location(name=""):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=6000)
