@@ -18,7 +18,6 @@ def post_timely_articles():
     johnny_onthespot = Reporter()
     hot_trends_list = johnny_onthespot.get_hot_trends()
     johnny_onthespot.post_articles(hot_trends_list)
-    johnny_onthespot.close()
     return 'ran news/post_timely_articles/\n{}'.format(hot_trends_list)
 
 

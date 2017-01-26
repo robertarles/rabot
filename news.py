@@ -12,12 +12,13 @@ class Reporter:
     def __init__(self):
         self.client = MongoClient('mongodb://localhost:27017/')
         self.rabot_db = self.client.rabot32
-        self.driver = webdriver.PhantomJS(executable_path="/usr/local/bin/phantomjs")
         self.hot_search_count_min = 500000
 
     def get_trends(self):
-        self.driver.get("https://www.google.com/trends/hottrends")
-        trends = self.driver.find_elements_by_css_selector("div.hottrends-single-trend-container")
+        driver = webdriver.PhantomJS(executable_path="/usr/local/bin/phantomjs")
+        driver.get("https://www.google.com/trends/hottrends")
+        trends = driver.find_elements_by_css_selector("div.hottrends-single-trend-container")
+        driver.close()
         trend_list = []
         # response = requests.get("https://www.google.com/trends/hottrends")
         # soup = BeautifulSoup(content, 'html.parser')
@@ -86,9 +87,7 @@ class Reporter:
             db_result = self.rabot_db.posted_timely.insert_one(article)
             article["reposted"] = 1
         print("[DEBUG] post complete with response " + str(response.status_code))
-    
-    def close(self):
-        self.driver.close()
+
 
 
 if __name__ == "__main__":
