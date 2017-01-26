@@ -18,7 +18,6 @@ class Reporter:
         driver = webdriver.PhantomJS(executable_path="/usr/local/bin/phantomjs")
         driver.get("https://www.google.com/trends/hottrends")
         trends = driver.find_elements_by_css_selector("div.hottrends-single-trend-container")
-        driver.close()
         trend_list = []
         # response = requests.get("https://www.google.com/trends/hottrends")
         # soup = BeautifulSoup(content, 'html.parser')
@@ -31,6 +30,7 @@ class Reporter:
             trend_list.append({"search_term": search_term, "search_count": search_count, "href": article_href})
         curator = Curator()
         curator.process_trends(trend_list, ["`store`", "trends"], "rabot32")
+        driver.close()
         return trend_list
 
     def get_hot_trends(self):
@@ -79,14 +79,15 @@ class Reporter:
                   article["href"] + "'>" + article["title"] + "</a></b>"
         payload = {"title": title, "content": summary, "categories": article["source_title"]}
         headers = {"authorization": "BEARER ME6ofxetCuYR4)^53Jhq^n$W@j*ascOPy&)tL(3yNfgVhve5EpJhqxqkxkLvdXE9"}
-        response = requests.post(
-                                "https://public-api.wordpress.com/rest/v1/sites/122975976/posts/new",
-                                data=json.dumps(payload),
-                                headers=headers)
-        if response.status_code == 200:
-            db_result = self.rabot_db.posted_timely.insert_one(article)
-            article["reposted"] = 1
-        print("[DEBUG] post complete with response " + str(response.status_code))
+        # response = requests.post(
+        #                         "https://public-api.wordpress.com/rest/v1/sites/122975976/posts/new",
+        #                         data=json.dumps(payload),
+        #                         headers=headers)
+        # if response.status_code == 200:
+        #     db_result = self.rabot_db.posted_timely.insert_one(article)
+        #     article["reposted"] = 1
+        # print("[DEBUG] post complete with response " + str(response.status_code))
+        print("GOOP")
 
 
 
