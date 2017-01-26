@@ -79,15 +79,14 @@ class Reporter:
                   article["href"] + "'>" + article["title"] + "</a></b>"
         payload = {"title": title, "content": summary, "categories": article["source_title"]}
         headers = {"authorization": "BEARER ME6ofxetCuYR4)^53Jhq^n$W@j*ascOPy&)tL(3yNfgVhve5EpJhqxqkxkLvdXE9"}
-        # response = requests.post(
-        #                         "https://public-api.wordpress.com/rest/v1/sites/122975976/posts/new",
-        #                         data=json.dumps(payload),
-        #                         headers=headers)
-        # if response.status_code == 200:
-        #     db_result = self.rabot_db.posted_timely.insert_one(article)
-        #     article["reposted"] = 1
-        # print("[DEBUG] post complete with response " + str(response.status_code))
-        print("GOOP")
+        response = requests.post(
+                                "https://public-api.wordpress.com/rest/v1/sites/122975976/posts/new",
+                                data=json.dumps(payload),
+                                headers=headers)
+        if response.status_code == 200:
+            db_result = self.rabot_db.posted_timely.insert_one(article)
+            article["reposted"] = 1
+        print("[DEBUG] post complete with response " + str(response.status_code))
 
 
 
