@@ -16,26 +16,26 @@ class Reporter:
         self.hot_search_count_min = 199000
 
     def get_trends(self):
-	trend_list = []
-	driver = webdriver.PhantomJS(executable_path="/usr/local/bin/phantomjs")
-	try:        
-		driver.get("https://www.google.com/trends/hottrends")
-        	trends = driver.find_elements_by_css_selector("div.hottrends-single-trend-container")
-        	# response = requests.get("https://www.google.com/trends/hottrends")
-        	# soup = BeautifulSoup(content, 'html.parser')
-        	# trends = soup.find_all("div")#, "hottrends-single-trend-container")
-        	for trend in trends:
-            		search_term = trend.find_element_by_css_selector("span.hottrends-single-trend-title").text
-            		article_href = trend.find_element_by_tag_name("a").get_attribute("href")
-            		search_count = trend.find_element_by_css_selector("span.hottrends-single-trend-info-line-number").text
-            		search_count = int(search_count.replace("+", "").replace(",", ""))
-            	trend_list.append({"search_term": search_term, "search_count": search_count, "href": article_href})
-        	curator = Curator()
-        	curator.process_trends(trend_list, ["`store`", "trends"], "rabot32")
+        trend_list = []
+        driver = webdriver.PhantomJS(executable_path="/usr/local/bin/phantomjs")
+        try:
+            driver.get("https://www.google.com/trends/hottrends")
+            trends = driver.find_elements_by_css_selector("div.hottrends-single-trend-container")
+            # response = requests.get("https://www.google.com/trends/hottrends")
+            # soup = BeautifulSoup(content, 'html.parser')
+            # trends = soup.find_all("div")#, "hottrends-single-trend-container")
+            for trend in trends:
+                search_term = trend.find_element_by_css_selector("span.hottrends-single-trend-title").text
+                article_href = trend.find_element_by_tag_name("a").get_attribute("href")
+                search_count = trend.find_element_by_css_selector("span.hottrends-single-trend-info-line-number").text
+                search_count = int(search_count.replace("+", "").replace(",", ""))
+                trend_list.append({"search_term": search_term, "search_count": search_count, "href": article_href})
+            curator = Curator()
+            curator.process_trends(trend_list, ["`store`", "trends"], "rabot32")
         except:
-		print("exception in get_trends() running webdriver?")
-	finally: 
-		driver.close()
+            print("exception in get_trends() running webdriver?")
+        finally:
+            driver.close()
         return trend_list
 
     def get_hot_trends(self):
