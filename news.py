@@ -1,5 +1,6 @@
 from curator import Curator
 import json
+import os
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -45,22 +46,34 @@ class Reporter:
     def post_articles(self, article_list):
         for article in article_list:
             url = article["href"]
-            doc = Article(url)
-            try:
-                doc.download()
-                doc.parse()
-            except ArticleException:
-                print("Exception getting article from url [{}]".format(url))
-                return
-            article["image"] = ""
-            if doc.has_top_image():
-                article["image"] = "<img src={}>".format(doc.top_image)
-            article["title"] = doc.title
-            article["source_title"] = "notYetSet"
-            article["summary"] = article["image"] + doc.text[:300] + " ...</br>"
+            article = self.extract_article_from(url)
             self.post_article_api(article["href"], article)
 
+    def post_submission(self, url):
+        article = self.extract_article_from(url)
+        success = self.post_article_api(url, article)
+        return {"success": success, "posted_url": url, "title": article["title"]}
+
+    def extract_article_from(self, url):
+        article = {}
+        doc = Article(url)
+        try:
+            doc.download()
+            doc.parse()
+        except ArticleException:
+            print("Exception getting article from url [{}]".format(url))
+            return
+        article["image"] = ""
+        if doc.has_top_image():
+            article["image"] = "<img src={}>".format(doc.top_image)
+        article["title"] = doc.title
+        article["source_title"] = "notYetSet"
+        article["summary"] = article["image"] + doc.text[:300] + " ...</br>"
+        article["href"]=url
+        return article
+
     def post_article_api(self, siteurl, article):
+        success = False
         '''
         post an article to a wordpress site using the jetpack/wordpress api
         :param siteurl: urls of the site to post to
@@ -79,14 +92,20 @@ class Reporter:
                   article["href"] + "'>" + article["title"] + "</a></b>"
         payload = {"title": title, "content": summary, "categories": article["source_title"]}
         headers = {"authorization": "BEARER ME6ofxetCuYR4)^53Jhq^n$W@j*ascOPy&)tL(3yNfgVhve5EpJhqxqkxkLvdXE9"}
+        host = os.uname().nodename
+        if "moriarty" in host:
+            print("[MORIARTY] not posting {}".format(article["href"]))
+            success = True
+            return success
         response = requests.post(
                                 "https://public-api.wordpress.com/rest/v1/sites/122975976/posts/new",
                                 data=json.dumps(payload),
                                 headers=headers)
         if response.status_code == 200:
             db_result = self.rabot_db.posted_timely.insert_one(article)
-            article["reposted"] = 1
+            success = True
         print("[DEBUG] post complete with response " + str(response.status_code))
+        return success
 
 
 
@@ -94,6 +113,3 @@ if __name__ == "__main__":
     johnny_onthespot = Reporter()
     hot_trends_list = johnny_onthespot.get_hot_trends()
     johnny_onthespot.post_articles(hot_trends_list)
-    # article = {"title": "Poodle Doop", "summary": "this is not about doodle poop, feel free to carry on", \
-    #            "href": "http://robert.arles.us", "source_title": "title of source here"}
-    # johnny_onthespot.post_article_api("",article)

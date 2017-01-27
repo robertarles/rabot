@@ -1,6 +1,8 @@
 from flask import Flask
 from flask import render_template
 from flask import make_response
+from flask import request
+from flask import jsonify
 from meteorologist import Meteorologist
 from ragatherer import RaGatherer
 from curator import Curator
@@ -15,10 +17,22 @@ johnny_onthespot = Reporter()
 
 @app.route("/news/post_timely_articles/")
 def post_timely_articles():
-    johnny_onthespot = Reporter()
     hot_trends_list = johnny_onthespot.get_hot_trends()
     johnny_onthespot.post_articles(hot_trends_list)
     return 'ran news/post_timely_articles/\n{}'.format(hot_trends_list)
+
+@app.route("/news/submit_timely_article/", methods=['POST'])
+def submit_timely_artcle():
+    response = {}
+    if request.form["secret_key"] == "fandango":
+        if request.form["submit_url"]:
+            response = johnny_onthespot.post_submission(request.form["submit_url"])
+        else:
+            response = {"sucess": False, "error": "Did you send a 'submit_url'?"}
+    else:
+        response = {"success": False, "error": "Bad secret_key, homer. Try again?"}
+    return jsonify(response)
+
 
 
 @app.route("/meteorologist/check/")
