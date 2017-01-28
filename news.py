@@ -13,7 +13,7 @@ class Reporter:
     def __init__(self):
         self.client = MongoClient('mongodb://localhost:27017/')
         self.rabot_db = self.client.rabot32
-        self.hot_search_count_min = 199000
+        self.hot_search_count_min = 200000
 
     def get_trends(self):
         trend_list = []
@@ -38,14 +38,25 @@ class Reporter:
             driver.close()
         return trend_list
 
-    def get_hot_trends(self):
+    def get_hottest_trend(self):
         hot_trends = []
         trends_list = self.get_trends()
-        for trend in trends_list:
+        highest_search_count = 0
+        for trend in trends_list:        # make sure we haven't already posted this article
+            url_is_posted_count = self.rabot_db.posted_timely.find({"href": {"$eq": trend["href"]}}).count()
+            if url_is_posted_count > 0:
+                continue
             if trend["search_count"] >= self.hot_search_count_min:
-                print(trend)
-                hot_trends.append(trend)
-        return hot_trends
+                if int(trend["search_count"]) > highest_search_count:
+                    highest_search_count = int(trend["search_count"])
+                    print(trend)
+                    hot_trends.append(trend)
+            hottest_trend = {}
+            for trend in hot_trends:
+                if int(trend["search_count"]) >= highest_search_count:
+                    hottest_trend = trend
+                    break
+        return trend
 
     def post_articles(self, article_list):
         for article in article_list:
@@ -115,5 +126,5 @@ class Reporter:
 
 if __name__ == "__main__":
     johnny_onthespot = Reporter()
-    hot_trends_list = johnny_onthespot.get_hot_trends()
-    johnny_onthespot.post_articles(hot_trends_list)
+    hot_article = johnny_onthespot.get_hottest_trend()
+    johnny_onthespot.post_articles([hot_article,])

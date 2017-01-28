@@ -17,9 +17,10 @@ johnny_onthespot = Reporter()
 
 @app.route("/news/post_timely_articles/")
 def post_timely_articles():
-    hot_trends_list = johnny_onthespot.get_hot_trends()
+    hot_trends_list = johnny_onthespot.get_hottest_trend()
     johnny_onthespot.post_articles(hot_trends_list)
     return 'ran news/post_timely_articles/\n{}'.format(hot_trends_list)
+
 
 @app.route("/news/submit_timely_article/", methods=['POST'])
 def submit_timely_artcle():
@@ -32,7 +33,6 @@ def submit_timely_artcle():
     else:
         response = {"success": False, "error": "Bad secret_key, homer. Try again?"}
     return jsonify(response)
-
 
 
 @app.route("/meteorologist/check/")
