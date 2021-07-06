@@ -20,7 +20,7 @@ keyrings.alt==1.1.1
 lxml==3.7.2
 MarkupSafe==0.23
 newspaper3k==0.1.9
-nltk==3.2.2
+nltk==3.4.5
 oauthlib==1.1.1
 olefile==0.44
 Pillow==4.0.0
