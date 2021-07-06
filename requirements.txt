@@ -10,7 +10,7 @@ docutils==0.13.1
 feedfinder2==0.0.4
 feedgenerator==1.9
 feedparser==5.2.1
-Flask==0.10.1
+Flask==1.0
 idna==2.2
 itsdangerous==0.24
 jieba3k==0.35.1
