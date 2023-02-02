@@ -41,4 +41,4 @@ tweepy==3.5.0
 tzlocal==1.2.2
 Unidecode==0.4.20
 uWSGI==2.0.13.1
-Werkzeug==0.15.3
+Werkzeug==0.15.5
